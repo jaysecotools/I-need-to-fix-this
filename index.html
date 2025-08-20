@@ -1,0 +1,176 @@
+// Add this at the beginning of your script, before your existing code
+const app = {
+    currentProject: null,
+    projects: JSON.parse(localStorage.getItem('ecoProjects')) || {},
+    drawingMode: false,
+    drawnItems: new L.FeatureGroup(),
+    drawControl: null,
+    
+    init: function() {
+        // Initialize the application
+        this.showProjectSelection();
+        this.setupEventListeners();
+        
+        // If there are projects, automatically select the first one
+        const projectKeys = Object.keys(this.projects);
+        if (projectKeys.length > 0) {
+            this.loadProject(projectKeys[0]);
+            bootstrap.Modal.getInstance(document.getElementById('projectSelectionModal')).hide();
+        }
+    },
+    
+    showProjectSelection: function() {
+        const projectsContainer = document.getElementById('projectsContainer');
+        projectsContainer.innerHTML = '';
+        
+        const projectKeys = Object.keys(this.projects);
+        
+        if (projectKeys.length === 0) {
+            projectsContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-folder-x display-1 text-muted"></i>
+                    <p class="mt-3">No projects found. Create your first project to get started.</p>
+                </div>
+            `;
+        } else {
+            projectKeys.forEach(projectId => {
+                const project = this.projects[projectId];
+                const projectCard = document.createElement('div');
+                projectCard.className = 'col-md-6 col-lg-4 mb-3';
+                projectCard.innerHTML = `
+                    <div class="card project-card h-100" data-project-id="${projectId}">
+                        <div class="card-body">
+                            <h5 class="card-title">${project.name}</h5>
+                            <p class="card-text text-muted">${project.description || 'No description'}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">${project.areas ? Object.keys(project.areas).length : 0} areas</small>
+                                <small class="text-muted">${this.formatDate(project.createdAt)}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                projectsContainer.appendChild(projectCard);
+            });
+        }
+        
+        // Show the project selection modal
+        new bootstrap.Modal(document.getElementById('projectSelectionModal')).show();
+    },
+    
+    loadProject: function(projectId) {
+        this.currentProject = this.projects[projectId];
+        
+        // Update UI with project info
+        document.getElementById('currentProjectName').textContent = this.currentProject.name;
+        document.getElementById('currentProjectDescription').textContent = this.currentProject.description || '';
+        
+        // Initialize map and other components
+        this.initMap();
+        this.initCharts();
+        this.initCalendar();
+        this.loadAreasList();
+        this.loadDashboard();
+        this.loadAssessments();
+        this.loadSpecies();
+        this.loadActivities();
+        this.loadMonitoring();
+        this.loadReports();
+        this.loadComplianceChecklist();
+        this.loadSettings();
+    },
+    
+    initMap: function() {
+        // Initialize the map with project location if available
+        const defaultCoords = [-33.4000, 150.3000]; // Blue Mountains
+        const coords = this.currentProject.locationCoords || defaultCoords;
+        
+        window.map = L.map('map').setView(coords, 13);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(window.map);
+        
+        // Initialize drawing controls
+        this.initDrawingTools();
+        
+        // Load project areas if any
+        this.loadProjectAreas();
+    },
+    
+    initDrawingTools: function() {
+        // Remove existing draw control if any
+        if (this.drawControl) {
+            window.map.removeControl(this.drawControl);
+        }
+        
+        // Initialize feature group to store drawn items
+        this.drawnItems = new L.FeatureGroup();
+        window.map.addLayer(this.drawnItems);
+        
+        // Initialize draw control
+        this.drawControl = new L.Control.Draw({
+            position: 'topright',
+            draw: {
+                polygon: {
+                    shapeOptions: {
+                        color: '#3d8bfd'
+                    },
+                    allowIntersection: false,
+                    drawError: {
+                        color: '#dc3545',
+                        message: '<strong>Error:</strong> shape edges cannot cross!'
+                    },
+                    showArea: true,
+                    metric: true
+                },
+                polyline: false,
+                circle: {
+                    shapeOptions: {
+                        color: '#3d8bfd'
+                    }
+                },
+                rectangle: {
+                    shapeOptions: {
+                        color: '#3d8bfd'
+                    }
+                },
+                marker: false,
+                circlemarker: false
+            },
+            edit: {
+                featureGroup: this.drawnItems
+            }
+        });
+        
+        // Add draw control to map but hide it initially
+        // We'll show it only when in drawing mode
+        
+        // Event listeners for drawing
+        window.map.on(L.Draw.Event.CREATED, (e) => {
+            const type = e.layerType;
+            const layer = e.layer;
+            
+            // Add style to the drawn layer
+            if (type === 'polygon' || type === 'rectangle') {
+                layer.setStyle({
+                    color: '#3d8bfd',
+                    fillColor: '#3d8bfd',
+                    fillOpacity: 0.2,
+                    weight: 2
+                });
+            } else if (type === 'circle') {
+                layer.setStyle({
+                    color: '#3d8bfd',
+                    fillColor: '#3d8bfd',
+                    fillOpacity: 0.2,
+                    weight: 2
+                });
+            }
+            
+            this.drawnItems.addLayer(layer);
+            
+            // Show the area details modal
+            this.showAreaDetailsModal(layer);
+        });
+    },
