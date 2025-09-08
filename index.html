@@ -219,7 +219,7 @@
             wombat: { name: "Common Wombat", rarity: "common", habitat: "forest", indicator: "soil health", image: "🐻" },
             black_currawong: { name: "Black Currawong", rarity: "common", habitat: "forest", indicator: "forest health", image: "🐦" },
             freshwater_lobster: { name: "Tasmanian Giant Freshwater Lobster", rarity: "endangered", habitat: "riparian", indicator: "water quality", image: "🦞" },
-            blue_gum: { name: "Tasmanian Blue Gum", rarity: "common", habitat: "forest", indicator: "forest maturity", image: "🌳" }
+            blue_gum: { name: "Tasmanian Blue Gum", rarity: "common", habitat: "forest", indicator: "forest maturity", image: "🌳" },
 	    maugean_skate: { name: "Maugean Skate", rarity: "critically endangered", habitat: "estuarine", indicator: "water quality", image: "🐟" },
 	    estuarine_fish: { name: "Estuarine Fish Species", rarity: "varied", habitat: "estuarine", indicator: "ecosystem health", image: "🐠" }
         };
@@ -896,137 +896,178 @@ case "check_estuary":
         };
 
         // More dynamic choice generation
-        const getNextChoices = (ecosystemData, currentLocation) => {
-            const { ecosystemHealth, biodiversityIndex, budget, reputation, educationLevel, volunteers, locationsVisited, policiesEnacted, climateEvents, npcTeam, unlockedProjects } = ecosystemData;
-            const challengeMode = challengeModes[ecosystemData.challengeMode];
-            const costMultiplier = challengeMode.costMultiplier || 1;
-            
-            const baseChoices = [
-                { id: "observe_wildlife", text: "Observe wildlife", cost: 0, time: 1 },
-                { id: "explore", text: "Explore new areas", cost: 0, time: 1, className: "bg-blue-100 border-blue-300" }
-            ];
-            
-            const specialChoices = [];
-            
-            // Restoration actions
-            if (budget >= 50 * costMultiplier) {
-                specialChoices.push({ id: "plant_shrubs", text: "Plant native shrubs", cost: 50, time: 1 });
-            }
-            
-            if (budget >= 20 * costMultiplier) {
-                specialChoices.push({ id: "remove_weeds", text: "Remove invasive species", cost: 20, time: 1 });
-            }
-            
-            // Tree planting is now available earlier
-            if (budget >= 100 * costMultiplier) {
-                specialChoices.push({ id: "plant_trees", text: "Plant native trees", cost: 100, time: 2, className: "tree-planting-action" });
-            }
-            
-            if (locationsVisited.includes('macquarie_harbor')) {
-                specialChoices.push({ id: "check_estuary", text: "Monitor estuarine health", cost: 0, time: 1, className: "water-quality-action" });
-            }
-            
-            if (ecosystemHealth > 70 && budget >= 150 * costMultiplier) {
-                specialChoices.push({ id: "build_habitat", text: "Build habitat structures", cost: 150, time: 2 });
-            }
-            
-            if (ecosystemHealth > 60 && budget >= 80 * costMultiplier) {
-                specialChoices.push({ id: "test_water", text: "Conduct water quality tests", cost: 80, time: 1, className: "water-quality-action" });
-            }
-            
-            // Water quality improvement actions
-            if (budget >= 120 * costMultiplier) {
-                specialChoices.push({ id: "clean_waterways", text: "Clean up waterways", cost: 120, time: 2, className: "water-quality-action" });
-            }
-            
-            if (budget >= 200 * costMultiplier) {
-                specialChoices.push({ id: "install_filtration", text: "Install natural filtration", cost: 200, time: 3, className: "water-quality-action" });
-            }
-            
-            if (budget >= 150 * costMultiplier) {
-                specialChoices.push({ id: "plant_riparian", text: "Plant riparian vegetation", cost: 150, time: 2, className: "water-quality-action tree-planting-action" });
-            }
-            
-            // Location-specific projects
-            if (unlockedProjects[currentLocation] && unlockedProjects[currentLocation].length > 0) {
-                locations[currentLocation].projects.forEach(project => {
-                    if (unlockedProjects[currentLocation].includes(project.id) && budget >= project.cost * costMultiplier) {
-                        specialChoices.push({
-                            id: "run_project",
-                            text: `Project: ${project.name}`,
-                            cost: project.cost,
-                            time: 2,
-                            projectId: project.id,
-                            className: "location-unlocked"
-                        });
-                    }
-                });
-            }
-            
-            // Community engagement actions
-            if (reputation >= 20 && budget >= 80 * costMultiplier) {
-                specialChoices.push({ id: "educational_program", text: "Run educational program", cost: 80, time: 2 });
-            }
-            
-            if (reputation >= 15) {
-                specialChoices.push({ id: "fundraiser", text: "Organize fundraiser", cost: 30, time: 2, className: "fundraising-action" });
-            }
-            
-            if (reputation >= 25) {
-                specialChoices.push({ id: "recruit_volunteers", text: "Recruit volunteers", cost: 20, time: 1 });
-            }
-            
-            if (educationLevel >= 30 && reputation >= 40) {
-                specialChoices.push({ id: "research_grants", text: "Apply for research grants", cost: 80, time: 3 });
-            }
-            
-            // Policy options (only show if not already enacted)
-            policyOptions.forEach(policy => {
-                if (!policiesEnacted.includes(policy.id) && budget >= Math.abs(policy.cost) * costMultiplier && reputation >= 30) {
-                    specialChoices.push({ 
-                        id: "enact_policy", 
-                        text: `Enact: ${policy.name}`, 
-                        cost: policy.cost, 
-                        time: 3,
-                        policyId: policy.id
-                    });
-                }
-            });
-            
-            // NPC hiring options
-            if (ecosystemData.gameMode === 'team') {
-                npcTeamMembers.forEach(npc => {
-                    if (!npcTeam.some(m => m.id === npc.id) && budget >= npc.cost * costMultiplier) {
-                        specialChoices.push({
-                            id: "hire_npc",
-                            text: `Hire: ${npc.name} (${npc.role})`,
-                            cost: npc.cost,
-                            time: 2,
-                            npcId: npc.id
-                        });
-                    }
-                });
-            }
-            
-            // Climate mitigation options
-            if (climateEvents.length > 0 && climateEvents[0].active && budget >= 150 * costMultiplier) {
-                specialChoices.push({ 
-                    id: "climate_mitigation", 
-                    text: `Mitigate: ${climateEvents[0].name}`, 
-                    cost: 150, 
-                    time: 2 
-                });
-            }
-            
-            // Always include "End Adventure" once significant progress is made
-            if (ecosystemHealth > 40 || biodiversityIndex > 35) {
-                specialChoices.push({ id: "end_adventure", text: "End Adventure", cost: 0, time: 0 });
-            }
-            
-            // Return 3-5 choices
-            const allChoices = [...new Set([...specialChoices, ...baseChoices])];
-            return allChoices.slice(0, 5);
-        };
+       const getNextChoices = (ecosystemData, currentLocation) => {
+    const { ecosystemHealth, biodiversityIndex, budget, reputation, educationLevel, volunteers, locationsVisited, policiesEnacted, climateEvents, npcTeam, unlockedProjects } = ecosystemData;
+    const challengeMode = challengeModes[ecosystemData.challengeMode];
+    const costMultiplier = challengeMode.costMultiplier || 1;
+    const budgetMultiplier = challengeMode.budgetMultiplier || 1;
+    const eventFrequencyMultiplier = challengeMode.eventFrequency || 1;
+    
+    const baseChoices = [
+        { id: "observe_wildlife", text: "Observe wildlife", cost: 0, time: 1 }
+    ];
+    
+    const specialChoices = [];
+    
+    // Always include explore action (but with higher chance when there are undiscovered locations)
+    const unexploredLocations = Object.keys(locations).filter(
+        loc => !locationsVisited.includes(loc)
+    );
+    
+    // Make explore more likely when there are locations to discover
+    if (unexploredLocations.length > 0 || Math.random() < 0.7) {
+        specialChoices.push({ 
+            id: "explore", 
+            text: "Explore new areas", 
+            cost: 0, 
+            time: 1, 
+            className: "bg-blue-100 border-blue-300" 
+        });
+    }
+    
+    // Restoration actions
+    if (budget >= 50 * costMultiplier) {
+        specialChoices.push({ id: "plant_shrubs", text: "Plant native shrubs", cost: 50, time: 1 });
+    }
+    
+    if (budget >= 20 * costMultiplier) {
+        specialChoices.push({ id: "remove_weeds", text: "Remove invasive species", cost: 20, time: 1 });
+    }
+    
+    // Tree planting is now available earlier
+    if (budget >= 100 * costMultiplier) {
+        specialChoices.push({ id: "plant_trees", text: "Plant native trees", cost: 100, time: 2, className: "tree-planting-action" });
+    }
+    
+    if (locationsVisited.includes('macquarie_harbor')) {
+        specialChoices.push({ id: "check_estuary", text: "Monitor estuarine health", cost: 0, time: 1, className: "water-quality-action" });
+    }
+    
+    if (ecosystemHealth > 70 && budget >= 150 * costMultiplier) {
+        specialChoices.push({ id: "build_habitat", text: "Build habitat structures", cost: 150, time: 2 });
+    }
+    
+    if (ecosystemHealth > 60 && budget >= 80 * costMultiplier) {
+        specialChoices.push({ id: "test_water", text: "Conduct water quality tests", cost: 80, time: 1, className: "water-quality-action" });
+    }
+    
+    // Water quality improvement actions
+    if (budget >= 120 * costMultiplier) {
+        specialChoices.push({ id: "clean_waterways", text: "Clean up waterways", cost: 120, time: 2, className: "water-quality-action" });
+    }
+    
+    if (budget >= 200 * costMultiplier) {
+        specialChoices.push({ id: "install_filtration", text: "Install natural filtration", cost: 200, time: 3, className: "water-quality-action" });
+    }
+    
+    if (budget >= 150 * costMultiplier) {
+        specialChoices.push({ id: "plant_riparian", text: "Plant riparian vegetation", cost: 150, time: 2, className: "water-quality-action tree-planting-action" });
+    }
+    
+    // Location-specific projects
+    if (unlockedProjects[currentLocation] && unlockedProjects[currentLocation].length > 0) {
+        locations[currentLocation].projects.forEach(project => {
+            if (unlockedProjects[currentLocation].includes(project.id) && budget >= project.cost * costMultiplier) {
+                specialChoices.push({
+                    id: "run_project",
+                    text: `Project: ${project.name}`,
+                    cost: project.cost,
+                    time: 2,
+                    projectId: project.id,
+                    className: "location-unlocked"
+                });
+            }
+        });
+    }
+    
+    // Community engagement actions
+    if (reputation >= 20 && budget >= 80 * costMultiplier) {
+        specialChoices.push({ id: "educational_program", text: "Run educational program", cost: 80, time: 2 });
+    }
+    
+    if (reputation >= 15) {
+        specialChoices.push({ id: "fundraiser", text: "Organize fundraiser", cost: 30, time: 2, className: "fundraising-action" });
+    }
+    
+    if (reputation >= 25) {
+        specialChoices.push({ id: "recruit_volunteers", text: "Recruit volunteers", cost: 20, time: 1 });
+    }
+    
+    if (educationLevel >= 30 && reputation >= 40) {
+        specialChoices.push({ id: "research_grants", text: "Apply for research grants", cost: 80, time: 3 });
+    }
+    
+    // Policy options (only show if not already enacted)
+    policyOptions.forEach(policy => {
+        if (!policiesEnacted.includes(policy.id) && budget >= Math.abs(policy.cost) * costMultiplier && reputation >= 30) {
+            specialChoices.push({ 
+                id: "enact_policy", 
+                text: `Enact: ${policy.name}`, 
+                cost: policy.cost, 
+                time: 3,
+                policyId: policy.id
+            });
+        }
+    });
+    
+    // NPC hiring options
+    if (ecosystemData.gameMode === 'team') {
+        npcTeamMembers.forEach(npc => {
+            if (!npcTeam.some(m => m.id === npc.id) && budget >= npc.cost * costMultiplier) {
+                specialChoices.push({
+                    id: "hire_npc",
+                    text: `Hire: ${npc.name} (${npc.role})`,
+                    cost: npc.cost,
+                    time: 2,
+                    npcId: npc.id
+                });
+            }
+        });
+    }
+    
+    // Climate mitigation options
+    if (climateEvents.length > 0 && climateEvents[0].active && budget >= 150 * costMultiplier) {
+        specialChoices.push({ 
+            id: "climate_mitigation", 
+            text: `Mitigate: ${climateEvents[0].name}`, 
+            cost: 150, 
+            time: 2 
+        });
+    }
+    
+    // Always include "End Adventure" once significant progress is made
+    if (ecosystemHealth > 40 || biodiversityIndex > 35) {
+        specialChoices.push({ id: "end_adventure", text: "End Adventure", cost: 0, time: 0 });
+    }
+    
+    // Combine base and special choices, ensuring explore is always an option
+    const allChoices = [...baseChoices, ...specialChoices];
+    
+    // Make sure explore is included (50% chance if not already there)
+    const hasExplore = allChoices.some(choice => choice.id === "explore");
+    if (!hasExplore && Math.random() < 0.5) {
+        allChoices.push({ 
+            id: "explore", 
+            text: "Explore new areas", 
+            cost: 0, 
+            time: 1, 
+            className: "bg-blue-100 border-blue-300" 
+        });
+    }
+    
+    // Return 4-6 choices (prioritizing explore when there are undiscovered locations)
+    if (unexploredLocations.length > 0) {
+        // If there are locations to discover, prioritize explore
+        const exploreChoice = allChoices.find(choice => choice.id === "explore");
+        if (exploreChoice) {
+            // Move explore to the front
+            const filteredChoices = allChoices.filter(choice => choice.id !== "explore");
+            return [exploreChoice, ...filteredChoices].slice(0, 5);
+        }
+    }
+    
+    return allChoices.slice(0, 5);
+}; 
 
         // Map component for location visualization
         const LocationMap = ({ locationKey, onLocationChange }) => {
