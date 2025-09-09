@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoQuest: Tasmania Conservation</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Chart.js for data visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Leaflet for maps -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest: Tasmania Conservation</title>
+    <!-- All the previous CSS and JS imports remain the same -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -126,6 +123,8 @@
         .location-unlocked {
             animation: pulse 2s infinite;
             border: 2px solid #10b981 !important;
+	    background-color: #d1fae5 !important; /* Light green background */
+	    color: #065f46 !important; /* Dark green text */
         }
         .tooltip {
             position: relative;
@@ -199,10 +198,10 @@
     </style>
 </head>
 <body class="seasonal-bg tasmania-bg min-h-screen">
-    <div id="root" class="min-h-screen"></div>
+    <div id="root" class="min-h-screen"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
 
         // Tasmania-specific wildlife and locations
         const tasmaniaWildlife = {
@@ -893,138 +892,79 @@ switch(choice.id) {
             return updatedData;
         };
 
-        // More dynamic choice generation
-        const getNextChoices = (ecosystemData, currentLocation) => {
-            const { ecosystemHealth, biodiversityIndex, budget, reputation, educationLevel, volunteers, locationsVisited, policiesEnacted, climateEvents, npcTeam, unlockedProjects } = ecosystemData;
-            const challengeMode = challengeModes[ecosystemData.challengeMode];
-            const costMultiplier = challengeMode.costMultiplier || 1;
-            
-            const baseChoices = [
-                { id: "observe_wildlife", text: "Observe wildlife", cost: 0, time: 1 },
-                { id: "explore", text: "Explore new areas", cost: 0, time: 1, className: "bg-blue-100 border-blue-300" }
-            ];
-            
-            const specialChoices = [];
-            
-            // Restoration actions
-            if (budget >= 50 * costMultiplier) {
-                specialChoices.push({ id: "plant_shrubs", text: "Plant native shrubs", cost: 50, time: 1 });
-            }
-            
-            if (budget >= 20 * costMultiplier) {
-                specialChoices.push({ id: "remove_weeds", text: "Remove invasive species", cost: 20, time: 1 });
-            }
-            
-            // Tree planting is now available earlier
-            if (budget >= 100 * costMultiplier) {
-                specialChoices.push({ id: "plant_trees", text: "Plant native trees", cost: 100, time: 2, className: "tree-planting-action" });
-            }
-            
-            if (locationsVisited.includes('macquarie_harbor')) {
-                specialChoices.push({ id: "check_harbour", text: "Monitor harbour health", cost: 0, time: 1, className: "water-quality-action" });
-            }
-            
-            if (ecosystemHealth > 70 && budget >= 150 * costMultiplier) {
-                specialChoices.push({ id: "build_habitat", text: "Build habitat structures", cost: 150, time: 2 });
-            }
-            
-            if (ecosystemHealth > 60 && budget >= 80 * costMultiplier) {
-                specialChoices.push({ id: "test_water", text: "Conduct water quality tests", cost: 80, time: 1, className: "water-quality-action" });
-            }
-            
-            // Water quality improvement actions
-            if (budget >= 120 * costMultiplier) {
-                specialChoices.push({ id: "clean_waterways", text: "Clean up waterways", cost: 120, time: 2, className: "water-quality-action" });
-            }
-            
-            if (budget >= 200 * costMultiplier) {
-                specialChoices.push({ id: "install_filtration", text: "Install natural filtration", cost: 200, time: 3, className: "water-quality-action" });
-            }
-            
-            if (budget >= 150 * costMultiplier) {
-                specialChoices.push({ id: "plant_riparian", text: "Plant riparian vegetation", cost: 150, time: 2, className: "water-quality-action tree-planting-action" });
-            }
-            
-            // Location-specific projects
-            if (unlockedProjects[currentLocation] && unlockedProjects[currentLocation].length > 0) {
-                locations[currentLocation].projects.forEach(project => {
-                    if (unlockedProjects[currentLocation].includes(project.id) && budget >= project.cost * costMultiplier) {
-                        specialChoices.push({
-                            id: "run_project",
-                            text: `Project: ${project.name}`,
-                            cost: project.cost,
-                            time: 2,
-                            projectId: project.id,
-                            className: "location-unlocked"
-                        });
-                    }
-                });
-            }
-            
-            // Community engagement actions
-            if (reputation >= 20 && budget >= 80 * costMultiplier) {
-                specialChoices.push({ id: "educational_program", text: "Run educational program", cost: 80, time: 2 });
-            }
-            
-            if (reputation >= 15) {
-                specialChoices.push({ id: "fundraiser", text: "Organize fundraiser", cost: 30, time: 2, className: "fundraising-action" });
-            }
-            
-            if (reputation >= 25) {
-                specialChoices.push({ id: "recruit_volunteers", text: "Recruit volunteers", cost: 20, time: 1 });
-            }
-            
-            if (educationLevel >= 30 && reputation >= 40) {
-                specialChoices.push({ id: "research_grants", text: "Apply for research grants", cost: 80, time: 3 });
-            }
-            
-            // Policy options (only show if not already enacted)
-            policyOptions.forEach(policy => {
-                if (!policiesEnacted.includes(policy.id) && budget >= Math.abs(policy.cost) * costMultiplier && reputation >= 30) {
-                    specialChoices.push({ 
-                        id: "enact_policy", 
-                        text: `Enact: ${policy.name}`, 
-                        cost: policy.cost, 
-                        time: 3,
-                        policyId: policy.id
-                    });
-                }
-            });
-            
-            // NPC hiring options
-            if (ecosystemData.gameMode === 'team') {
-                npcTeamMembers.forEach(npc => {
-                    if (!npcTeam.some(m => m.id === npc.id) && budget >= npc.cost * costMultiplier) {
-                        specialChoices.push({
-                            id: "hire_npc",
-                            text: `Hire: ${npc.name} (${npc.role})`,
-                            cost: npc.cost,
-                            time: 2,
-                            npcId: npc.id
-                        });
-                    }
-                });
-            }
-            
-            // Climate mitigation options
-            if (climateEvents.length > 0 && climateEvents[0].active && budget >= 150 * costMultiplier) {
-                specialChoices.push({ 
-                    id: "climate_mitigation", 
-                    text: `Mitigate: ${climateEvents[0].name}`, 
-                    cost: 150, 
-                    time: 2 
-                });
-            }
-            
-            // Always include "End Adventure" once significant progress is made
-            if (ecosystemHealth > 40 || biodiversityIndex > 35) {
-                specialChoices.push({ id: "end_adventure", text: "End Adventure", cost: 0, time: 0 });
-            }
-            
-            // Return 3-5 choices
-            const allChoices = [...new Set([...specialChoices, ...baseChoices])];
-            return allChoices.slice(0, 5);
-        };
+          // More dynamic choice generation - FIXED VERSION
+        const getNextChoices = (ecosystemData, currentLocation) => {
+            const { ecosystemHealth, biodiversityIndex, budget, reputation, educationLevel, volunteers, locationsVisited, policiesEnacted, climateEvents, npcTeam, unlockedProjects } = ecosystemData;
+            const challengeMode = challengeModes[ecosystemData.challengeMode];
+            const costMultiplier = challengeMode.costMultiplier || 1;
+            
+            const baseChoices = [
+                { id: "observe_wildlife", text: "Observe wildlife", cost: 0, time: 1 },
+                { id: "explore", text: "Explore new areas", cost: 0, time: 1, className: "bg-blue-100 border-blue-300" }
+            ];
+            
+            const specialChoices = [];
+            
+            // FIRST: Add available projects for current location (PRIORITY)
+            if (unlockedProjects[currentLocation] && unlockedProjects[currentLocation].length > 0) {
+                locations[currentLocation].projects.forEach(project => {
+                    if (unlockedProjects[currentLocation].includes(project.id) && budget >= project.cost * costMultiplier) {
+                        specialChoices.push({
+                            id: "run_project",
+                            text: `Project: ${project.name}`,
+                            cost: project.cost,
+                            time: 2,
+                            projectId: project.id,
+                            className: "location-unlocked pulse-animation"
+                        });
+                    }
+                });
+            }
+            
+            // THEN: Add other actions (only if we have space)
+            if (budget >= 50 * costMultiplier && specialChoices.length < 3) {
+                specialChoices.push({ id: "plant_shrubs", text: "Plant native shrubs", cost: 50, time: 1 });
+            }
+            
+            if (budget >= 20 * costMultiplier && specialChoices.length < 3) {
+                specialChoices.push({ id: "remove_weeds", text: "Remove invasive species", cost: 20, time: 1 });
+            }
+            
+            if (budget >= 100 * costMultiplier && specialChoices.length < 3) {
+                specialChoices.push({ id: "plant_trees", text: "Plant native trees", cost: 100, time: 2, className: "tree-planting-action" });
+            }
+            
+            // Add a few more essential actions if we still have space
+            if (specialChoices.length < 3) {
+                if (locationsVisited.includes('macquarie_harbor')) {
+                    specialChoices.push({ id: "check_harbour", text: "Monitor harbour health", cost: 0, time: 1, className: "water-quality-action" });
+                }
+                
+                if (reputation >= 15 && specialChoices.length < 3) {
+                    specialChoices.push({ id: "fundraiser", text: "Organize fundraiser", cost: 30, time: 2, className: "fundraising-action" });
+                }
+                
+                if (reputation >= 25 && specialChoices.length < 3) {
+                    specialChoices.push({ id: "recruit_volunteers", text: "Recruit volunteers", cost: 20, time: 1 });
+                }
+            }
+            
+            // Always include "End Adventure" once significant progress is made
+            if ((ecosystemHealth > 40 || biodiversityIndex > 35) && specialChoices.length < 4) {
+                specialChoices.push({ id: "end_adventure", text: "End Adventure", cost: 0, time: 0 });
+            }
+            
+            // Combine all choices - projects first, then base choices
+            const allChoices = [...specialChoices, ...baseChoices];
+            
+            // Debug: log the choices being generated
+            console.log("Available choices:", allChoices.map(c => c.text));
+            console.log("Current location:", currentLocation);
+            console.log("Unlocked projects:", unlockedProjects[currentLocation]);
+            
+            // Return up to 8 choices
+            return allChoices.slice(0, 8);
+        };
 
         // Map component for location visualization
         const LocationMap = ({ locationKey, onLocationChange }) => {
@@ -1406,12 +1346,18 @@ switch(choice.id) {
                 }
             };
 
-            const handleLocationChange = (locationKey) => {
-                if (ecosystemData.locationsVisited.includes(locationKey)) {
-                    setCurrentLocation(locationKey);
-                    setStoryLog(prevLog => [...prevLog, `You travel to ${locations[locationKey].name}.`]);
-                }
-            };
+        // handleLocationChange function
+        
+        const handleLocationChange = (locationKey) => {
+            if (ecosystemData.locationsVisited.includes(locationKey)) {
+                setCurrentLocation(locationKey);
+                setStoryLog(prevLog => [...prevLog, `You travel to ${locations[locationKey].name}.`]);
+                
+                // Update choices for the new location
+                const nextChoices = getNextChoices(ecosystemData, locationKey);
+                setCurrentChoices(nextChoices);
+            }
+        };
 
             const startGame = (mode) => {
                 setEcosystemData(prev => ({
@@ -1436,17 +1382,21 @@ switch(choice.id) {
                 localStorage.removeItem('ecoQuestSaveData');
             };
 
-            const loadGame = () => {
-                const savedData = localStorage.getItem('ecoQuestSaveData');
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    setEcosystemData(data);
-                    setGameModeSelected(true);
-                    setGameStarted(true);
-                    setCurrentLocation(data.currentLocation);
-                    setStoryLog([...initialStoryLog, "Game loaded successfully!"]);
-                }
-            };
+        const loadGame = () => {
+            const savedData = localStorage.getItem('ecoQuestSaveData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                setEcosystemData(data);
+                setGameModeSelected(true);
+                setGameStarted(true);
+                setCurrentLocation(data.currentLocation);
+                setStoryLog([...initialStoryLog, "Game loaded successfully!"]);
+                
+                // Update choices for the loaded location
+                const nextChoices = getNextChoices(data, data.currentLocation);
+                setCurrentChoices(nextChoices);
+            }
+        };
 
             const shareResults = () => {
                 const text = `I restored Tasmania's ecosystem to ${ecosystemData.ecosystemHealth}% health in EcoQuest! 
