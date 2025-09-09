@@ -214,7 +214,7 @@
             pademelon: { name: "Tasmanian Pademelon", rarity: "common", habitat: "forest", indicator: "understory health", image: "🦘" },
             wombat: { name: "Common Wombat", rarity: "common", habitat: "forest", indicator: "soil health", image: "🐻" },
             black_currawong: { name: "Black Currawong", rarity: "common", habitat: "forest", indicator: "forest health", image: "🐦" },
-            freshwater_lobster: { name: "Tasmanian Giant Freshwater Lobster", rarity: "endangered", habitat: "riparian", indicator: "water quality", image: "🦞" },
+            Maugean skate: { name: "Maugean skate", rarity: "endangered", habitat: "harbour", indicator: "water quality", image: "🦞" },
             blue_gum: { name: "Tasmanian Blue Gum", rarity: "common", habitat: "forest", indicator: "forest maturity", image: "🌳" }
         };
 
@@ -225,7 +225,7 @@
             "Tasmania's Tarkine rainforest is the second-largest temperate rainforest in the world.",
             "Over 40% of Tasmania is protected as national parks and reserves.",
             "Tasmania is home to 12 endemic bird species found nowhere else on Earth.",
-            "The Tasmanian giant freshwater lobster is the largest freshwater invertebrate in the world.",
+            "The Maugean skate is a rare ray found only in Tasmania’s Macquarie Harbour and Bathurst Harbour, making it one of the world’s few estuarine skates and a species at extreme risk of extinction.",
             "Tasmania has some of the cleanest air in the world, measured at Cape Grim.",
             "The island was connected to mainland Australia until about 12,000 years ago.",
             "Tasmania has 18 national parks, covering diverse ecosystems from alpine to coastal.",
@@ -316,16 +316,16 @@
             },
             macquarie_harbor: {
                 name: "Macquarie Harbor",
-                description: "A large harbor with salmon farms, historical sites, and important wetland habitats.",
+                description: "A large harbor with salmon fhistorical sites.",
                 restorationPotential: "Medium",
-                keySpecies: ["platypus", "freshwater_lobster", "black_currawong"],
+                keySpecies: ["platypus", "maugean skate", "black_currawong"],
                 threats: ["aquaculture", "pollution", "water quality"],
                 coordinates: [-42.3, 145.3],
-                biome: "wetland",
+                biome: "harbour",
                 projects: [
-                    { id: "wetland_restoration", name: "Wetland Restoration", cost: 180, effect: "Restore degraded wetland areas", healthImpact: 12, waterImpact: 15, biodiversityImpact: 10 }, // Reduced cost
+                    { id: "harbour_restoration", name: "Harbour Restoration", cost: 180, effect: "Restore degraded harbour areas", healthImpact: 12, waterImpact: 15, biodiversityImpact: 10 }, // Reduced cost
                     { id: "water_quality", name: "Water Quality Improvement", cost: 150, effect: "Improve water quality through filtration", healthImpact: 8, waterImpact: 18 }, // Reduced cost
-                    { id: "lobster_conservation", name: "Freshwater Lobster Conservation", cost: 120, effect: "Protect endangered lobster habitat", healthImpact: 7, biodiversityImpact: 12 } // Reduced cost
+                    { id: "Maugean skate_conservation", name: "Maugean skate Conservation", cost: 120, effect: "Protect endangered Maugean skate habitat", healthImpact: 7, biodiversityImpact: 12 } // Reduced cost
                 ]
             }
         };
@@ -421,7 +421,7 @@
         const tooltips = {
             ecosystemHealth: "Overall health of the ecosystem based on biodiversity, water quality, and habitat condition",
             biodiversityIndex: "Measure of species diversity in the area - higher is better",
-            waterQuality: "Quality of water in rivers and wetlands - affects aquatic life",
+            waterQuality: "Quality of water in rivers and harbours - affects aquatic life",
             budget: "Available funds for conservation actions - earn more through fundraising",
             reputation: "Public support for your conservation efforts - affects volunteer recruitment",
             volunteers: "Community members helping with conservation - provides passive benefits",
@@ -477,10 +477,10 @@
                     "Exploring reveals issues that need addressing.",
                     "You discover beautiful areas that support native species."
                 ],
-                "check_wetland": [
-                    "The wetland is thriving with native plants and aquatic insects.",
-                    "You notice invasive species are starting to take over part of the wetland.",
-                    "The wetland acts as a natural filter, improving water quality."
+                "check_harbour": [
+                    "The harbour is thriving with native plants and aquatic insects.",
+                    "You notice invasive species are starting to take over part of the harbour.",
+                    "The harbour acts as a natural filter, improving water quality."
                 ],
                 "educational_program": [
                     "You organize a community workshop on native plants. Attendance is good!",
@@ -635,7 +635,7 @@ switch(choice.id) {
         updatedData.ecosystemHealth += 2;
         updatedData.budget -= choice.cost * costMultiplier;
         break;
-    case "check_wetland":
+    case "check_harbour":
         if (!updatedData.locationsVisited.includes('macquarie_harbor')) {
             updatedData.locationsVisited.push('macquarie_harbor');
         }
@@ -921,7 +921,7 @@ switch(choice.id) {
             }
             
             if (locationsVisited.includes('macquarie_harbor')) {
-                specialChoices.push({ id: "check_wetland", text: "Monitor wetland health", cost: 0, time: 1, className: "water-quality-action" });
+                specialChoices.push({ id: "check_harbour", text: "Monitor harbour health", cost: 0, time: 1, className: "water-quality-action" });
             }
             
             if (ecosystemHealth > 70 && budget >= 150 * costMultiplier) {
