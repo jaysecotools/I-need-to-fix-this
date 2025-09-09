@@ -817,7 +817,13 @@ case "check_estuary":
             // Random climate events (frequency affected by challenge mode)
             if (Math.random() < (0.1 * eventFrequencyMultiplier) && updatedData.day > 10) {
                 const event = {...climateEvents[Math.floor(Math.random() * climateEvents.length)]};
-                // Apply challenge mode severity modifier
+                                updatedData.climateEvents.unshift({
+                    ...event,
+                    day: updatedData.day,
+                    active: true
+                });
+
+// Apply challenge mode severity modifier
                 if (challengeMode.climateSeverity) {
                     event.healthImpact = Math.round(event.healthImpact * challengeMode.climateSeverity);
                     event.waterQualityImpact = Math.round(event.waterQualityImpact * challengeMode.climateSeverity);
