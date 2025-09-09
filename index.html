@@ -729,8 +729,7 @@ case "check_estuary":
                         updatedData.unlockedProjects[currentLocation] = updatedData.unlockedProjects[currentLocation].filter(id => id !== project.id);
                     }
                     break;
-            return updatedData;
-        };
+
     case "build_habitat":
         updatedData.ecosystemHealth += 7;
         updatedData.biodiversityIndex += 6;
@@ -897,6 +896,7 @@ case "check_estuary":
             
             return updatedData;
         };
+
 
         // More dynamic choice generation
        const getNextChoices = (ecosystemData, currentLocation) => {
