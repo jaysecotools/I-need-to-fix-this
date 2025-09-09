@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoQuest: Tasmania Conservation</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Chart.js for data visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Leaflet for maps -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest: Tasmania Conservation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -203,10 +203,10 @@
     </style>
 </head>
 <body class="seasonal-bg tasmania-bg min-h-screen">
-    <div id="root" class="min-h-screen"></div>
+    <div id="root" class="min-h-screen"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
 
         // Tasmania-specific wildlife and locations
         const tasmaniaWildlife = {
@@ -565,16 +565,16 @@ macquarie_harbor: {
             return response;
         };
 
-        // More sophisticated ecosystem update function
-        const updateEcosystem = (choice, ecosystemData, currentLocation) => {
-            const updatedData = { ...ecosystemData };
-            const locationData = locations[currentLocation];
-            const challengeMode = challengeModes[updatedData.challengeMode];
-            
-            // Apply challenge mode modifiers
-            const costMultiplier = challengeMode.costMultiplier || 1;
-            const budgetMultiplier = challengeMode.budgetMultiplier || 1;
-            const eventFrequencyMultiplier = challengeMode.eventFrequency || 1;
+        // More sophisticated ecosystem update function
+        const updateEcosystem = (choice, ecosystemData, currentLocation) => {
+            const updatedData = { ...ecosystemData };
+            const locationData = locations[currentLocation];
+            const challengeMode = challengeModes[updatedData.challengeMode];
+            
+            // Apply challenge mode modifiers
+            const costMultiplier = challengeMode.costMultiplier || 1;
+            const budgetMultiplier = challengeMode.budgetMultiplier || 1;
+            const eventFrequencyMultiplier = challengeMode.eventFrequency || 1;
             
            // Update based on action
 switch(choice.id) {
@@ -713,21 +713,24 @@ case "check_estuary":
         updatedData.biodiversityIndex += 4;
         updatedData.budget -= choice.cost * costMultiplier;
         break;
-    case "run_project":
-        const project = locationData.projects.find(p => p.id === choice.projectId);
-        if (project) {
-            updatedData.ecosystemHealth += project.healthImpact || 0;
-            updatedData.biodiversityIndex += project.biodiversityImpact || 0;
-            updatedData.waterQuality += project.waterImpact || 0;
-            updatedData.budget -= project.cost * costMultiplier;
-            
-            // Mark project as completed
-            if (!updatedData.unlockedProjects[currentLocation]) {
-                updatedData.unlockedProjects[currentLocation] = [];
-            }
-            updatedData.unlockedProjects[currentLocation] = updatedData.unlockedProjects[currentLocation].filter(id => id !== project.id);
-        }
-        break;
+                case "run_project":
+                    const project = locationData.projects.find(p => p.id === choice.projectId);
+                    if (project) {
+                        updatedData.ecosystemHealth += project.healthImpact || 0;
+                        updatedData.biodiversityIndex += project.biodiversityImpact || 0;
+                        updatedData.waterQuality += project.waterImpact || 0;
+                        updatedData.reputation += project.reputationImpact || 0;
+                        updatedData.budget -= project.cost * costMultiplier;
+                        
+                        // Mark project as completed
+                        if (!updatedData.unlockedProjects[currentLocation]) {
+                            updatedData.unlockedProjects[currentLocation] = [];
+                        }
+                        updatedData.unlockedProjects[currentLocation] = updatedData.unlockedProjects[currentLocation].filter(id => id !== project.id);
+                    }
+                    break;
+            return updatedData;
+        };
     case "build_habitat":
         updatedData.ecosystemHealth += 7;
         updatedData.biodiversityIndex += 6;
@@ -964,22 +967,24 @@ case "check_estuary":
         specialChoices.push({ id: "plant_riparian", text: "Plant riparian vegetation", cost: 150, time: 2, className: "water-quality-action tree-planting-action" });
     }
     
-    // Location-specific projects
-    if (unlockedProjects[currentLocation] && unlockedProjects[currentLocation].length > 0) {
-        locations[currentLocation].projects.forEach(project => {
-            if (unlockedProjects[currentLocation].includes(project.id) && budget >= project.cost * costMultiplier) {
-                specialChoices.push({
-                    id: "run_project",
-                    text: `Project: ${project.name}`,
-                    cost: project.cost,
-                    time: 2,
-                    projectId: project.id,
-                    className: "location-unlocked"
+            // Location-specific projects - FIXED: Now properly adding project choices
+            if (unlockedProjects[currentLocation] && unlockedProjects[currentLocation].length > 0) {
+                locations[currentLocation].projects.forEach(project => {
+                    if (unlockedProjects[currentLocation].includes(project.id) && budget >= project.cost * costMultiplier) {
+                        specialChoices.push({
+                            id: "run_project",
+                            text: `Project: ${project.name}`,
+                            cost: project.cost,
+                            time: 2,
+                            projectId: project.id,
+                            className: "location-unlocked"
+                        });
+                    }
                 });
             }
-        });
-    }
     
+
+
     // Community engagement actions
     if (reputation >= 20 && budget >= 80 * costMultiplier) {
         specialChoices.push({ id: "educational_program", text: "Run educational program", cost: 80, time: 2 });
@@ -1055,19 +1060,19 @@ case "check_estuary":
         });
     }
     
-    // Return 4-6 choices (prioritizing explore when there are undiscovered locations)
-    if (unexploredLocations.length > 0) {
-        // If there are locations to discover, prioritize explore
-        const exploreChoice = allChoices.find(choice => choice.id === "explore");
-        if (exploreChoice) {
-            // Move explore to the front
-            const filteredChoices = allChoices.filter(choice => choice.id !== "explore");
-            return [exploreChoice, ...filteredChoices].slice(0, 5);
-        }
-    }
-    
-    return allChoices.slice(0, 5);
-}; 
+            // Return 4-6 choices (prioritizing explore when there are undiscovered locations)
+            if (unexploredLocations.length > 0) {
+                // If there are locations to discover, prioritize explore
+                const exploreChoice = specialChoices.find(choice => choice.id === "explore");
+                if (exploreChoice) {
+                    // Move explore to the front
+                    const filteredChoices = specialChoices.filter(choice => choice.id !== "explore");
+                    return [exploreChoice, ...baseChoices, ...filteredChoices].slice(0, 6);
+                }
+            }
+            
+            return [...baseChoices, ...specialChoices].slice(0, 6);
+        };
 
         // Map component for location visualization
         const LocationMap = ({ locationKey, onLocationChange }) => {
@@ -1414,40 +1419,40 @@ case "check_estuary":
                     return;
                 }
                 
-                // Generate AI response
-                const response = generateAIResponse(choice, ecosystemData, currentLocation);
-                
-                // Update ecosystem data
-                const updatedEcosystem = updateEcosystem(choice, ecosystemData, currentLocation);
-                setEcosystemData(updatedEcosystem);
-                
-                // Update story log
-                setStoryLog(prevLog => [...prevLog, `> ${choice.text}`, response]);
-                
-                // Determine next choices
-                const nextChoices = getNextChoices(updatedEcosystem, currentLocation);
-                setCurrentChoices(nextChoices);
-                
-                // Possibly change location based on exploration
-                if (choice.id === "explore" && updatedEcosystem.locationsVisited.length > ecosystemData.locationsVisited.length) {
-                    const newLocation = updatedEcosystem.locationsVisited[updatedEcosystem.locationsVisited.length - 1];
-                    setCurrentLocation(newLocation);
-                    setStoryLog(prevLog => [...prevLog, `You've discovered a new area: ${locations[newLocation].name}! This location now has projects available.`]);
-                }
+   // Generate AI response
+                const response = generateAIResponse(choice, ecosystemData, currentLocation);
+                
+                // Update ecosystem data
+                const updatedEcosystem = updateEcosystem(choice, ecosystemData, currentLocation);
+                setEcosystemData(updatedEcosystem);
+                
+                // Update story log
+                setStoryLog(prevLog => [...prevLog, `> ${choice.text}`, response]);
+                
+                // Determine next choices
+                const nextChoices = getNextChoices(updatedEcosystem, currentLocation);
+                setCurrentChoices(nextChoices);
+                
+                // Possibly change location based on exploration
+                if (choice.id === "explore" && updatedEcosystem.locationsVisited.length > ecosystemData.locationsVisited.length) {
+                    const newLocation = updatedEcosystem.locationsVisited[updatedEcosystem.locationsVisited.length - 1];
+                    setCurrentLocation(newLocation);
+                    setStoryLog(prevLog => [...prevLog, `You've discovered a new area: ${locations[newLocation].name}! This location now has projects available.`]);
+                }
 
-                // Advance tutorial if needed
-                if (updatedEcosystem.tutorialStep < tutorialSteps.length - 1) {
-                    if (updatedEcosystem.tutorialStep === 0 && choice.id !== "observe_wildlife") {
-                        setEcosystemData(prev => ({...prev, tutorialStep: 1}));
-                    } else if (updatedEcosystem.tutorialStep === 1 && choice.id === "explore") {
-                        setEcosystemData(prev => ({...prev, tutorialStep: 2}));
-                    } else if (updatedEcosystem.tutorialStep === 2 && choice.id.includes("run_project")) {
-                        setEcosystemData(prev => ({...prev, tutorialStep: 3}));
-                    } else if (updatedEcosystem.tutorialStep === 3 && updatedEcosystem.day > 5) {
-                        setEcosystemData(prev => ({...prev, tutorialStep: 4}));
-                    }
-                }
-            };
+                // Advance tutorial if needed
+                if (updatedEcosystem.tutorialStep < tutorialSteps.length - 1) {
+                    if (updatedEcosystem.tutorialStep === 0 && choice.id !== "observe_wildlife") {
+                        setEcosystemData(prev => ({...prev, tutorialStep: 1}));
+                    } else if (updatedEcosystem.tutorialStep === 1 && choice.id === "explore") {
+                        setEcosystemData(prev => ({...prev, tutorialStep: 2}));
+                    } else if (updatedEcosystem.tutorialStep === 2 && choice.id.includes("run_project")) {
+                        setEcosystemData(prev => ({...prev, tutorialStep: 3}));
+                    } else if (updatedEcosystem.tutorialStep === 3 && updatedEcosystem.day > 5) {
+                        setEcosystemData(prev => ({...prev, tutorialStep: 4}));
+                    }
+                }
+            };
 
             const handleLocationChange = (locationKey) => {
                 if (ecosystemData.locationsVisited.includes(locationKey)) {
@@ -2306,16 +2311,16 @@ Try it yourself at: ${window.location.href}`;
             );
         }
 
-        // Render the app
-        const appContainer = document.getElementById('root');
-        if (ReactDOM.createRoot) {
-            // React 18+
-            const root = ReactDOM.createRoot(appContainer);
-            root.render(<EcoQuest />);
-        } else {
-            // React 17 and earlier
-            ReactDOM.render(<EcoQuest />, appContainer);
-        }
-    </script>
+        // Render the app
+        const appContainer = document.getElementById('root');
+        if (ReactDOM.createRoot) {
+            // React 18+
+            const root = ReactDOM.createRoot(appContainer);
+            root.render(<EcoQuest />);
+        } else {
+            // React 17 and earlier
+            ReactDOM.render(<EcoQuest />, appContainer);
+        }
+    </script>
 </body>
 </html>
