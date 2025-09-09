@@ -214,7 +214,7 @@
             pademelon: { name: "Tasmanian Pademelon", rarity: "common", habitat: "forest", indicator: "understory health", image: "🦘" },
             wombat: { name: "Common Wombat", rarity: "common", habitat: "forest", indicator: "soil health", image: "🐻" },
             black_currawong: { name: "Black Currawong", rarity: "common", habitat: "forest", indicator: "forest health", image: "🐦" },
-            Maugean skate: { name: "Maugean skate", rarity: "endangered", habitat: "harbour", indicator: "water quality", image: "🦞" },
+            Maugean_skate: { name: "Maugean Skate", rarity: "endangered", habitat: "harbour", indicator: "water quality", image: "🦞" },
             blue_gum: { name: "Tasmanian Blue Gum", rarity: "common", habitat: "forest", indicator: "forest maturity", image: "🌳" }
         };
 
@@ -318,14 +318,14 @@
                 name: "Macquarie Harbor",
                 description: "A large harbor with salmon fhistorical sites.",
                 restorationPotential: "Medium",
-                keySpecies: ["platypus", "maugean skate", "black_currawong"],
+                keySpecies: ["platypus", "maugean_skate", "black_currawong"],
                 threats: ["aquaculture", "pollution", "water quality"],
                 coordinates: [-42.3, 145.3],
                 biome: "harbour",
                 projects: [
                     { id: "harbour_restoration", name: "Harbour Restoration", cost: 180, effect: "Restore degraded harbour areas", healthImpact: 12, waterImpact: 15, biodiversityImpact: 10 }, // Reduced cost
                     { id: "water_quality", name: "Water Quality Improvement", cost: 150, effect: "Improve water quality through filtration", healthImpact: 8, waterImpact: 18 }, // Reduced cost
-                    { id: "Maugean skate_conservation", name: "Maugean skate Conservation", cost: 120, effect: "Protect endangered Maugean skate habitat", healthImpact: 7, biodiversityImpact: 12 } // Reduced cost
+                    { id: "Maugean_skate_conservation", name: "Maugean skate Conservation", cost: 120, effect: "Protect endangered Maugean skate habitat", healthImpact: 7, biodiversityImpact: 12 } // Reduced cost
                 ]
             }
         };
