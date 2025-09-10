@@ -239,10 +239,10 @@ const achievements = [
     { id: "carbon_100", name: "Carbon Champion", description: "Sequester 100 tons of carbon", icon: "🌍", condition: (data) => data.carbonSequestration >= 100 },
     { id: "volunteers_10", name: "Community Leader", description: "Recruit 10 volunteers", icon: "👥", condition: (data) => data.volunteers >= 10 },
     { id: "all_projects", name: "Project Manager", description: "Complete all projects in one location", icon: "✅", condition: (data) => {
-        return Object.values(data.unlockedProjects).some(projects => projects && projects.length === 0);
+    return Object.values(data.unlockedProjects).some(projects => projects && projects.length === 0);
     }},
     { id: "budget_5000", name: "Financial Manager", description: "Accumulate $5000 budget", icon: "💰", condition: (data) => data.budget >= 5000 },
-    { id: "all_achievements", name: "Master Conservationist", description: "Unlock all achievements", icon: "🏆", condition: (data, achieved) => achieved.length >= achievements.length - 1 }
+    { id: "all_achievements", name: "Master Conservationist", description: "Unlock all achievements", icon: "🏆", condition: (data, achieved) => achieved.length >= achievements.length }
 ];
 
         // Challenge modes
@@ -593,21 +593,25 @@ const achievements = [
                     updatedData.waterQuality += 1;
                     updatedData.budget -= choice.cost * costMultiplier;
                     break;
-                case "observe_wildlife":
-                    // Random chance to discover new wildlife based on biodiversity
-                    if (Math.random() < updatedData.biodiversityIndex / 100 && updatedData.wildlifeObserved.length < Object.keys(tasmaniaWildlife).length) {
-                        const possibleNewSpecies = Object.keys(tasmaniaWildlife).filter(
-                            species => !updatedData.wildlifeObserved.includes(species) && 
-                            tasmaniaWildlife[species].habitat === locationData.biome
-                        );
-                        if (possibleNewSpecies.length > 0) {
-                            const newSpecies = possibleNewSpecies[Math.floor(Math.random() * possibleNewSpecies.length)];
-                            updatedData.wildlifeObserved.push(newSpecies);
-                            updatedData.biodiversityIndex += 2;
-                        }
-                    }
-                    updatedData.ecosystemHealth += 1;
-                    break;
+               case "observe_wildlife":
+    // Random chance to discover new wildlife based on biodiversity
+    if (Math.random() < updatedData.biodiversityIndex / 100 && 
+        updatedData.wildlifeObserved.length < Object.keys(tasmaniaWildlife).length) {
+        const possibleNewSpecies = Object.keys(tasmaniaWildlife).filter(
+            species => !updatedData.wildlifeObserved.includes(species) && 
+            tasmaniaWildlife[species].habitat === locationData.biome
+        );
+        if (possibleNewSpecies.length > 0) {
+            const newSpecies = possibleNewSpecies[Math.floor(Math.random() * possibleNewSpecies.length)];
+            updatedData.wildlifeObserved.push(newSpecies);
+            updatedData.biodiversityIndex += 2;
+            
+            // Add notification to story log
+            updatedData.storyLog.push(`🦘 You discovered a ${tasmaniaWildlife[newSpecies].name}!`);
+        }
+    }
+    updatedData.ecosystemHealth += 1;
+    break;
                 case "explore":
                     // Explore new locations
                     const unexploredLocations = Object.keys(locations).filter(
@@ -868,7 +872,7 @@ const achievements = [
                 });
             }
             
-            // Check for achievements
+// Check for achievements
 achievements.forEach(achievement => {
     if (!updatedData.achievementsUnlocked.includes(achievement.id) && 
         achievement.condition(updatedData, updatedData.achievementsUnlocked)) {
@@ -1669,14 +1673,17 @@ Try it yourself at: ${window.location.href}`;
                                         <h3 className="text-lg font-medium text-green-700 mb-4">Your Achievements</h3>
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                             {achievements.map(achievement => (
-                                                <div key={achievement.id} className={`p-3 rounded-lg text-center ${ecosystemData.achievementsUnlocked.includes(achievement.id) ? 'bg-green-100 border border-green-300' : 'bg-gray-100 opacity-50'}`}>
-                                                    <div className="achievement-badge">
-                                                        {achievement.icon}
-                                                    </div>
-                                                    <h4 className="font-medium text-sm">{achievement.name}</h4>
-                                                    <p className="text-xs text-gray-600">{achievement.description}</p>
-                                                </div>
-                                            ))}
+    <div key={achievement.id} className={`p-3 rounded-lg text-center ${ecosystemData.achievementsUnlocked.includes(achievement.id) ? 'bg-green-100 border border-green-300' : 'bg-gray-100 opacity-50'}`}>
+        <div className="achievement-badge">
+            {achievement.icon}
+        </div>
+        <h4 className="font-medium text-sm">{achievement.name}</h4>
+        <p className="text-xs text-gray-600">{achievement.description}</p>
+        {!ecosystemData.achievementsUnlocked.includes(achievement.id) && (
+            <p className="text-xs text-red-500 mt-1">Locked</p>
+        )}
+    </div>
+))}
                                         </div>
                                     </div>
                                 )}
@@ -2165,7 +2172,10 @@ Try it yourself at: ${window.location.href}`;
                                                 </button>
                                             </h3>
                                             <div className="grid grid-cols-3 gap-2">
-                                                {achievements.slice(0, 3).map(achievement => (
+                                                {achievements
+  .filter(a => ecosystemData.achievementsUnlocked.includes(a.id))
+  .slice(0, 3)
+  .map(achievement => (
                                                     <div key={achievement.id} className={`p-2 rounded-lg text-center ${ecosystemData.achievementsUnlocked.includes(achievement.id) ? 'bg-green-100 border border-green-300' : 'bg-gray-100 opacity-50'}`}>
                                                         <div className="text-xl">{achievement.icon}</div>
                                                         <p className="text-xs mt-1">{achievement.name}</p>
