@@ -230,20 +230,20 @@
         ];
 
         // Achievement system
-        const achievements = [
-            { id: "first_tree", name: "First Tree Planted", description: "Plant your first native tree", icon: "🌱", condition: (data) => data.treesPlanted >= 1 },
-            { id: "five_species", name: "Wildlife Observer", description: "Observe 5 different species", icon: "🐾", condition: (data) => data.wildlifeObserved.length >= 5 },
-            { id: "health_75", name: "Ecosystem Steward", description: "Reach 75% ecosystem health", icon: "💚", condition: (data) => data.ecosystemHealth >= 75 },
-            { id: "all_locations", name: "Explorer", description: "Discover all locations", icon: "🗺️", condition: (data) => data.locationsVisited.length >= Object.keys(locations).length },
-            { id: "water_quality", name: "Water Guardian", description: "Achieve 80% water quality", icon: "💧", condition: (data) => data.waterQuality >= 80 },
-            { id: "carbon_100", name: "Carbon Champion", description: "Sequester 100 tons of carbon", icon: "🌍", condition: (data) => data.carbonSequestration >= 100 },
-            { id: "volunteers_10", name: "Community Leader", description: "Recruit 10 volunteers", icon: "👥", condition: (data) => data.volunteers >= 10 },
-            { id: "all_projects", name: "Project Manager", description: "Complete all projects in one location", icon: "✅", condition: (data) => {
-                return Object.values(data.unlockedProjects).some(projects => projects.length === 0);
-            }},
-            { id: "budget_5000", name: "Financial Manager", description: "Accumulate $5000 budget", icon: "💰", condition: (data) => data.budget >= 5000 },
-            { id: "all_achievements", name: "Master Conservationist", description: "Unlock all achievements", icon: "🏆", condition: (data, achieved) => achieved.length >= achievements.length - 1 }
-        ];
+const achievements = [
+    { id: "first_tree", name: "First Tree Planted", description: "Plant your first native tree", icon: "🌱", condition: (data) => data.treesPlanted >= 1 },
+    { id: "five_species", name: "Wildlife Observer", description: "Observe 5 different species", icon: "🐾", condition: (data) => data.wildlifeObserved.length >= 5 },
+    { id: "health_75", name: "Ecosystem Steward", description: "Reach 75% ecosystem health", icon: "💚", condition: (data) => data.ecosystemHealth >= 75 },
+    { id: "all_locations", name: "Explorer", description: "Discover all locations", icon: "🗺️", condition: (data) => data.locationsVisited.length >= Object.keys(locations).length },
+    { id: "water_quality", name: "Water Guardian", description: "Achieve 80% water quality", icon: "💧", condition: (data) => data.waterQuality >= 80 },
+    { id: "carbon_100", name: "Carbon Champion", description: "Sequester 100 tons of carbon", icon: "🌍", condition: (data) => data.carbonSequestration >= 100 },
+    { id: "volunteers_10", name: "Community Leader", description: "Recruit 10 volunteers", icon: "👥", condition: (data) => data.volunteers >= 10 },
+    { id: "all_projects", name: "Project Manager", description: "Complete all projects in one location", icon: "✅", condition: (data) => {
+        return Object.values(data.unlockedProjects).some(projects => projects && projects.length === 0);
+    }},
+    { id: "budget_5000", name: "Financial Manager", description: "Accumulate $5000 budget", icon: "💰", condition: (data) => data.budget >= 5000 },
+    { id: "all_achievements", name: "Master Conservationist", description: "Unlock all achievements", icon: "🏆", condition: (data, achieved) => achieved.length >= achievements.length - 1 }
+];
 
         // Challenge modes
         const challengeModes = {
@@ -869,14 +869,15 @@
             }
             
             // Check for achievements
-            achievements.forEach(achievement => {
-                if (!updatedData.achievementsUnlocked.includes(achievement.id) && 
-                    achievement.condition(updatedData, updatedData.achievementsUnlocked)) {
-                    updatedData.achievementsUnlocked.push(achievement.id);
-                    updatedData.storyLog = updatedData.storyLog || [];
-                    updatedData.storyLog.push(`🎉 Achievement Unlocked: ${achievement.name}! ${achievement.description}`);
-                }
-            });
+achievements.forEach(achievement => {
+    if (!updatedData.achievementsUnlocked.includes(achievement.id) && 
+        achievement.condition(updatedData, updatedData.achievementsUnlocked)) {
+        updatedData.achievementsUnlocked.push(achievement.id);
+        // Add achievement notification to story log
+        updatedData.storyLog = updatedData.storyLog || [];
+        updatedData.storyLog.push(`🎉 Achievement Unlocked: ${achievement.name}! ${achievement.description}`);
+    }
+});
             
             // Random Tasmania fact popup (5% chance)
             if (Math.random() < 0.05) {
