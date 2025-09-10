@@ -231,16 +231,16 @@
 
         // Achievement system
 const achievements = [
-    { id: "first_tree", name: "First Tree Planted", description: "Plant your first native tree", icon: "🌱", condition: (data) => data.treesPlanted >= 1 },
-    { id: "five_species", name: "Wildlife Observer", description: "Observe 5 different species", icon: "🐾", condition: (data) => data.wildlifeObserved.length >= 5 },
+	{ id: "first_tree", name: "First Tree Planted", description: "Plant your first native tree", icon: "🌱", condition: (data) => data.treesPlanted >= 1 },
+	{ id: "five_species", name: "Wildlife Observer", description: "Observe 5 different species", icon: "🐾", condition: (data) => data.wildlifeObserved.length >= 5 },
     { id: "health_75", name: "Ecosystem Steward", description: "Reach 75% ecosystem health", icon: "💚", condition: (data) => data.ecosystemHealth >= 75 },
     { id: "all_locations", name: "Explorer", description: "Discover all locations", icon: "🗺️", condition: (data) => data.locationsVisited.length >= Object.keys(locations).length },
     { id: "water_quality", name: "Water Guardian", description: "Achieve 80% water quality", icon: "💧", condition: (data) => data.waterQuality >= 80 },
     { id: "carbon_100", name: "Carbon Champion", description: "Sequester 100 tons of carbon", icon: "🌍", condition: (data) => data.carbonSequestration >= 100 },
     { id: "volunteers_10", name: "Community Leader", description: "Recruit 10 volunteers", icon: "👥", condition: (data) => data.volunteers >= 10 },
-    { id: "all_projects", name: "Project Manager", description: "Complete all projects in one location", icon: "✅", condition: (data) => {
-    return Object.values(data.unlockedProjects).some(projects => projects && projects.length === 0);
-    }},
+	{ id: "all_projects", name: "Project Manager", description: "Complete all projects in one location", icon: "✅", condition: (data) => {
+return Object.values(data.unlockedProjects).some(projects => projects && projects.length === 0);
+}},
     { id: "budget_5000", name: "Financial Manager", description: "Accumulate $5000 budget", icon: "💰", condition: (data) => data.budget >= 5000 },
     { id: "all_achievements", name: "Master Conservationist", description: "Unlock all achievements", icon: "🏆", condition: (data, achieved) => achieved.length >= achievements.length }
 ];
@@ -313,7 +313,7 @@ const achievements = [
             },
             macquarie_harbor: {
                 name: "Macquarie Harbor",
-                description: "A large harbor with salmon fhistorical sites.",
+                description: "A large harbor with salmon farming and historical sites.",
                 restorationPotential: "Medium",
                 keySpecies: ["platypus", "maugean_skate", "black_currawong"],
                 threats: ["aquaculture", "pollution", "water quality"],
@@ -593,7 +593,7 @@ const achievements = [
                     updatedData.waterQuality += 1;
                     updatedData.budget -= choice.cost * costMultiplier;
                     break;
-               case "observe_wildlife":
+case "observe_wildlife":
     // Random chance to discover new wildlife based on biodiversity
     if (Math.random() < updatedData.biodiversityIndex / 100 && 
         updatedData.wildlifeObserved.length < Object.keys(tasmaniaWildlife).length) {
@@ -1672,7 +1672,7 @@ Try it yourself at: ${window.location.href}`;
                                     <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                                         <h3 className="text-lg font-medium text-green-700 mb-4">Your Achievements</h3>
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            {achievements.map(achievement => (
+{achievements.map(achievement => (
     <div key={achievement.id} className={`p-3 rounded-lg text-center ${ecosystemData.achievementsUnlocked.includes(achievement.id) ? 'bg-green-100 border border-green-300' : 'bg-gray-100 opacity-50'}`}>
         <div className="achievement-badge">
             {achievement.icon}
@@ -2172,7 +2172,7 @@ Try it yourself at: ${window.location.href}`;
                                                 </button>
                                             </h3>
                                             <div className="grid grid-cols-3 gap-2">
-                                                {achievements
+{achievements
   .filter(a => ecosystemData.achievementsUnlocked.includes(a.id))
   .slice(0, 3)
   .map(achievement => (
